@@ -40,7 +40,7 @@ MemPage_t::MemPage_t(size_t _pageCapcity) : m_pageSize(_pageCapcity) // empty co
 
 MemPage_t::~MemPage_t()
 {
-	delete[] (char*)m_page;
+	delete[] m_page;
 	return;
 }
 
@@ -69,9 +69,9 @@ size_t MemPage_t::Read(void* _readOutput, size_t _readSize, size_t _position)
 		return 0;
 	}
 	
-	if (_position > m_actualUsedSize) // illagle position
+	if (_position > m_actualUsedSize) // illegal position
 	{
-		return 0; // TODO bug here
+		return 0; 
 	}
 	
 	if (_position + _readSize > m_actualUsedSize) // read size too big
@@ -99,7 +99,7 @@ size_t MemPage_t::Write(const void* _writeContent, size_t _writeSize, size_t _po
 	
 	if (_position > m_actualUsedSize) // illagle position
 	{
-		return 0; // TODO bug here
+		return 0;
 	}
 	
 	if (_position + _writeSize > m_pageSize) // write size exced page free space. truncate write size
@@ -109,7 +109,10 @@ size_t MemPage_t::Write(const void* _writeContent, size_t _writeSize, size_t _po
 	
 	memcpy ( (char*)m_page + _position, _writeContent ,_writeSize );
 	
-	m_actualUsedSize += _writeSize; // TODO bug here. if overritten, do not increase m_actualUsedSize
+	if (_position + _writeSize > m_actualUsedSize)
+	{ // increase m_actualUsedSize only if wrote new infomration and did not just overire data.
+		m_actualUsedSize += _position + _writeSize - m_actualUsedSize;
+	}
 	SetPosition(_position + _writeSize);
 	
 	return _writeSize;

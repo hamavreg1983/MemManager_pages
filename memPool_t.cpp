@@ -5,7 +5,6 @@
 #include "memPool_t.h"
 
 
-#include <iostream> /* cout */ /* todo remove */
 /* ~~~ Defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
