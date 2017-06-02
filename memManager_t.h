@@ -29,7 +29,7 @@ class MemManager_t
 		virtual ~MemManager_t() {};	/* DTOR */
 	
 		size_t GetPosition() const;
-		size_t SetPosition(size_t _newPosition);
+		bool SetPosition(size_t _newPosition);
 	
 		bool IsEmpty() const;
 		size_t GetSize() const;

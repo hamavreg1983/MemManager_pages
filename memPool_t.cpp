@@ -44,7 +44,10 @@ size_t MemPool_t::Read(void* _readOutput, size_t _readSize, size_t _position)
 	int resultRead = 0;
 	MemPage_t* currentPage;
 	
-	SetPosition(_position); // TODO bug here. test if moved succsusfly.
+	if (!SetPosition(_position)) // test if moved succsusfly.
+	{
+		return 0;
+	}
 	
 	while (resultRead != _readSize )
 	{
@@ -55,7 +58,7 @@ size_t MemPool_t::Read(void* _readOutput, size_t _readSize, size_t _position)
 		}
 		if (GetPosition() >= m_actualUsedSize)
 		{
-			return 0;
+			break;
 		}
 		
 		_readSize -= resultRead;
@@ -76,9 +79,6 @@ size_t MemPool_t::Write(const void* _writeContent, size_t _writeSize)
 
 size_t MemPool_t::Write(const void* _writeContent, size_t _writeSize, size_t _position )
 {
-	try 
-	{
-	
 	size_t interanlPosition;
 	MemPage_t* currentPage = GetCurrentPage(_position, &interanlPosition);
 	if (NULL == currentPage)
@@ -86,13 +86,21 @@ size_t MemPool_t::Write(const void* _writeContent, size_t _writeSize, size_t _po
 		return 0;
 	}
 	
-	SetPosition(_position); // TODO bug here. test if moved succsusfly.
+	if (!SetPosition(_position)) // test if moved succsusfly.
+	{
+		return 0;
+	}
 	
 	int resultWrite = currentPage->Write(_writeContent, _writeSize, interanlPosition );
 	
 	while (resultWrite != _writeSize)
 	{
-		CreateNewPage(); // TODO check if need to create a new page, or just continue to overritte.
+		if (m_actualUsedSize == GetPosition())
+		// check if need to create a new page, or just continue to overritte.
+		{
+			CreateNewPage(); 
+		}
+		
 		_writeSize -= resultWrite;
 		m_actualUsedSize += resultWrite;
 		SetPosition(GetPosition() + resultWrite);
@@ -103,16 +111,13 @@ size_t MemPool_t::Write(const void* _writeContent, size_t _writeSize, size_t _po
 			break;
 		}
 		
-		resultWrite = currentPage->Write((char*)_writeContent + resultWrite, _writeSize, interanlPosition ); // TODO can't write somthign larger than page
+		resultWrite = currentPage->Write((char*)_writeContent + resultWrite, _writeSize, interanlPosition ); 
+		
+		// can't write a signal item which is larger than a page
 	}
 	
 	m_actualUsedSize += resultWrite;
 	SetPosition(GetPosition() + resultWrite);
-	
-	} catch (size_t _pos)
-	{
-		std::cout << "Invalid position " << _pos << ".\n";
-	}
 	
 	return GetPosition() - _position;
 }

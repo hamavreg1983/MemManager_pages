@@ -40,7 +40,7 @@ MemPage_t::MemPage_t(size_t _pageCapcity) : m_pageSize(_pageCapcity) // empty co
 
 MemPage_t::~MemPage_t()
 {
-	delete[] m_page;
+	delete[] (char*)m_page;
 	return;
 }
 
